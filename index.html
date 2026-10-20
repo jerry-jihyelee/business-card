@@ -113,8 +113,10 @@
   }
   .slide.is-active .frame { transform: scale(1); opacity: 1; }
   /* 옆 카드는 가운데 카드 쪽 끝을 기준으로 줄여서 화면 가장자리에 살짝 보이게 */
-  .slide.is-next .frame { transform: translateX(calc(-10% + 12px)) scale(var(--scale-inactive)); }   /* 가운데 카드와 12px 간격 */
-  .slide.is-prev .frame { transform: translateX(calc(10% - 12px)) scale(var(--scale-inactive)); }
+  /* 옆 카드: 몇 번째 옆인지(--d)에 따라 위치를 당겨서 모든 카드 사이를 12px로 맞춤.
+     줄인 카드 폭은 80%라, 첫 번째는 10% 당기고 그다음부터는 한 장마다 20%씩 더 당김 */
+  .slide.is-next .frame { transform: translateX(calc(12px - 10% + (var(--d) - 1) * (12px - 20%))) scale(var(--scale-inactive)); }
+  .slide.is-prev .frame { transform: translateX(calc(-1 * (12px - 10% + (var(--d) - 1) * (12px - 20%)))) scale(var(--scale-inactive)); }
   .track.is-dragging .frame { transition: none; }
 
   /* 1. 명함 */
@@ -524,6 +526,7 @@
       s.classList.toggle("is-active", i === active);
       s.classList.toggle("is-next", i > active);
       s.classList.toggle("is-prev", i < active);
+      s.style.setProperty("--d", Math.abs(i - active));
     });
     pillButtons.forEach((b, i) => b.classList.toggle("is-active", i === active));
     setOffset(baseOffset());
