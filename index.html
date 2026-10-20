@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>이지혜 · 피클플러스</title>
+<meta name="description" content="피클플러스 프로덕트 디자인팀 이지혜(Jerry)의 명함">
+<meta property="og:title" content="이지혜 · Product Design Team Lead">
+<meta property="og:description" content="피클플러스 프로덕트 디자인팀에서 함께할 디자이너를 찾고 있어요">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="assets/symbol.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap">
+<style>
+  :root {
+    /* 명함 인쇄 색 (0_피클플러스 브랜딩 Color 프레임) */
+    --black: #000000;
+    --dark-green: #004619;
+    --pop-green: #3CFF00;
+    --white: #ffffff;
+    --text-2: rgba(0, 0, 0, 0.5);
+    --surface: #F3F4F6;      /* PDS gray-100 */
+    /* PDS (폼에서만 씀) */
+    --line: #D1D5DC;         /* gray-300 */
+    --sub: #6A7282;          /* gray-500 */
+    --error: #C10007;        /* red-700 */
+    --pressed: rgba(106, 114, 130, 0.20);
+    --pressed-strong: rgba(106, 114, 130, 0.40);
+
+    --pretendard: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --inter: "Inter", "Pretendard", -apple-system, system-ui, sans-serif;
+
+    /* 움직임: 레퍼런스(justinaguilar.com)의 carousel 값 */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --slide-duration: 1200ms;
+    --scale-inactive: 0.8;
+    --opacity-inactive: 0.2;
+    --page: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    overflow: hidden;
+    background: var(--white);
+    color: var(--black);
+    font-family: var(--pretendard);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.25px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; letter-spacing: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  .app {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ---------- 위: 이름 / 연락처 저장 ---------- */
+  .top {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: var(--page) var(--page) 0;
+  }
+  .top a { transition: color .16s ease; }
+  .top .save { color: var(--text-2); }
+  .top .save:active { color: var(--black); }
+  .bio { padding: 8px var(--page) 0; color: var(--text-2); letter-spacing: -0.15px; }
+
+  /* ---------- 가운데: 카드 넘기기 ---------- */
+  /* 설명 한 줄 + 카드를 한 묶음으로 세로 가운데에 놓음 */
+  .stage { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+  .carousel {
+    position: relative;
+    flex: 0 1 auto;
+    height: min(97.5vw, 525px);   /* 카드 폭 78% × 4:5 비율, 최대 420 × 525 */
+    min-height: 0;
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none; -webkit-user-select: none;
+  }
+  .track {
+    display: flex;
+    height: 100%;
+    will-change: transform;
+    transition: transform var(--slide-duration) var(--ease-out);
+  }
+  .track.is-dragging { transition: none; }
+  .slide {
+    flex: none;
+    width: 78%;
+    max-width: 420px;
+    height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .frame {
+    position: relative;
+    width: 100%;
+    max-height: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 20px;
+    overflow: hidden;
+    transform: scale(var(--scale-inactive));
+    opacity: var(--opacity-inactive);
+    transition: transform var(--slide-duration) var(--ease-out), opacity var(--slide-duration) var(--ease-out);
+    container-type: inline-size;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+  .slide.is-active .frame { transform: scale(1); opacity: 1; }
+  .track.is-dragging .frame { transition: none; }
+
+  /* 1. 명함 */
+  .frame--card { background: var(--surface); }
+  .card-wrap {
+    position: absolute; left: 50%; top: 50%;
+    width: 88%;
+    transform: translate(-50%, -50%) rotate(-6deg);
+    transition: transform .9s var(--ease-out);
+  }
+  .slide.is-active .card-wrap { transform: translate(-50%, -50%) rotate(-3deg); }
+  .card-inner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1063 / 591;
+    transform: perspective(1600px) rotateY(0deg);
+    transition: transform .22s ease-in;
+  }
+  .card-inner.is-half { transform: perspective(1600px) rotateY(90deg); }
+  .card-inner.is-return { transform: perspective(1600px) rotateY(-90deg); transition: none; }
+  .face {
+    position: absolute; inset: 0;
+    background: var(--white);
+    border-radius: 1.2cqw;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 18px 40px rgba(0,0,0,.14);
+    overflow: hidden;
+  }
+  .face--back { display: none; }
+  .frame.is-flipped .face--front { display: none; }
+  .frame.is-flipped .face--back { display: block; }
+  .face-body { height: 100%; container-type: inline-size; letter-spacing: 0; }
+  /* 명함 앞면: Figma C안 / Jerry 4053:152 (1063 × 591)을 cqw로 환산 */
+  .front { display: flex; height: 100%; padding: 0 4.704cqw; line-height: 1.5; white-space: nowrap; }
+  .front-left { flex: 1 0 0; display: flex; flex-direction: column; justify-content: space-between; padding: 3.575cqw 0 4.704cqw; }
+  .front-right { width: 41.016cqw; display: flex; flex-direction: column; justify-content: space-between; padding: 3.575cqw 0 4.124cqw; font-size: 2.916cqw; }
+  .name { font-weight: 700; font-size: 3.763cqw; }
+  .role { font-size: 2.916cqw; }
+  .symbol { display: block; width: 10.019cqw; height: 6.679cqw; }
+  .inter { font-family: var(--inter); font-weight: 500; }
+  .contact { padding-top: .758cqw; }
+  .back { position: relative; height: 100%; }
+  .logo { position: absolute; left: 32.83%; top: 41.12%; width: 34.42%; height: auto; }   /* Figma A안 4042:9556 */
+
+  .frame-hint {
+    position: absolute; left: 0; right: 0; bottom: 7cqw;
+    text-align: center; font-size: 4cqw; color: var(--text-2); letter-spacing: -0.02em;
+  }
+
+  /* 2. 채용 / 3. 커피챗 */
+  .frame--hiring { background: var(--pop-green); color: var(--black); }
+  .frame--coffee { background: rgba(0, 70, 25, 0.95); color: var(--white); }   /* 다크그린 #004619, opacity 95% */
+  .poster {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 7cqw;
+  }
+  .eyebrow { font-family: var(--inter); font-size: 4cqw; letter-spacing: 0; opacity: .7; }
+  .headline { font-size: 11cqw; font-weight: 700; line-height: 1.15; letter-spacing: -0.04em; }
+  .subline { margin-top: 2.5cqw; font-size: 4.4cqw; font-weight: 500; letter-spacing: -0.02em; opacity: .7; }
+  .poster-foot { display: flex; justify-content: space-between; align-items: center; font-size: 4.4cqw; font-weight: 600; letter-spacing: -0.02em; }
+  .frame--coffee .poster-foot .go { color: var(--pop-green); }
+  .poster .mark { width: 12cqw; height: auto; }
+
+  /* ---------- 카드 위 설명 한 줄 / 아래 탭 (pill nav) ---------- */
+  .caption {
+    min-height: 24px;
+    padding: 0 var(--page) 12px;
+    display: flex; justify-content: center; align-items: center; gap: 12px;
+    text-align: center;
+    color: var(--text-2);
+  }
+  .caption > * { transition: opacity .25s ease; }
+  .caption-btn { color: var(--black); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(0,0,0,.25); }
+
+  .pill-wrap { display: flex; justify-content: center; padding: 12px var(--page) var(--page); }
+  .pill {
+    position: relative;
+    display: flex;
+    padding: 4px;
+    background: var(--white);
+    border-radius: 80px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  }
+  .pill-indicator {
+    position: absolute; top: 4px; bottom: 4px;
+    border-radius: 110px;
+    background: rgba(0,0,0,.05);
+    transition: left .45s var(--ease-out), width .45s var(--ease-out);
+  }
+  .pill button {
+    position: relative;
+    padding: 12px 20px;
+    border-radius: 110px;
+    font-size: 16px;
+    opacity: .5;
+    transition: opacity .45s ease;
+  }
+  .pill button.is-active { opacity: 1; }
+
+  /* 복사 알림 */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom));
+    transform: translate(-50%, 8px);
+    padding: 10px 16px; border-radius: 999px;
+    background: var(--black); color: var(--white); font-size: 14px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .4s var(--ease-out);
+  }
+  .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---------- 커피챗 폼: 위에 뜨는 화면 ---------- */
+  .sheet {
+    position: fixed; inset: 0; z-index: 10;
+    background: var(--white);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    opacity: 0; transform: scale(1.02);
+    pointer-events: none;
+    transition: opacity .8s var(--ease-out), transform .8s var(--ease-out);
+  }
+  .sheet.is-open { opacity: 1; transform: none; pointer-events: auto; }
+  .sheet-inner { max-width: 480px; margin: 0 auto; padding: calc(var(--page) + env(safe-area-inset-top)) var(--page) calc(40px + env(safe-area-inset-bottom)); }
+  .sheet-top { display: flex; justify-content: space-between; align-items: center; }
+  .sheet-top .close { color: var(--text-2); }
+  .sheet h2 { font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.04em; }
+  .sheet .lead { margin-top: 8px; color: var(--text-2); }
+
+  form { display: grid; gap: 16px; margin-top: 28px; letter-spacing: 0; }
+  label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+  .opt { font-weight: 500; color: var(--sub); }
+  input[type=text], input[type=url] {
+    height: 48px; padding: 0 14px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--white);
+    font: inherit; font-size: 16px; font-weight: 500; color: var(--black);
+  }
+  input:focus { outline: none; border-color: var(--black); }
+  fieldset { border: 0; display: grid; gap: 6px; }
+  legend { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .chip span { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .chip input:checked + span { border-color: var(--black); background: var(--surface); }   /* 테두리 검정 + 배경 gray-100 */
+  .consent { padding: 14px; border-radius: 10px; background: #F9FAFB; font-size: 13px; font-weight: 500; color: var(--sub); line-height: 1.6; }
+  .consent strong { display: block; color: var(--black); font-weight: 600; margin-bottom: 4px; }
+  .consent ul { list-style: none; }
+  /* PDS Checkbox (0_PDS v1.0 2851:296) type=Fill / size=Large */
+  .check { position: relative; display: flex; align-items: flex-start; gap: 8px; font-size: 16px; font-weight: 700; line-height: 24px; color: #101828; cursor: pointer; }
+  .check input { position: absolute; opacity: 0; width: 24px; height: 24px; margin: 0; cursor: pointer; }
+  .check-box { position: relative; flex: none; width: 24px; height: 24px; border-radius: 6px; overflow: hidden; background: #F9FAFB; border: 1px solid #D1D5DC; }
+  .check-box::before { content: ""; position: absolute; left: 2px; top: 2px; width: 18px; height: 18px; background: url(assets/check.svg) center / 18px 18px no-repeat; opacity: 0; }
+  .check input:checked + .check-box { background: var(--black); border-color: var(--black); }
+  .check input:checked + .check-box::before { opacity: 1; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .form-msg { font-size: 14px; font-weight: 600; }
+  .form-msg.is-error { color: var(--error); }
+  .submit {
+    position: relative; isolation: isolate;
+    height: 56px; border-radius: 999px;
+    background: var(--black); color: var(--white);
+    font-size: 16px; font-weight: 600;
+  }
+  .submit:disabled { opacity: .4; }
+  .done { margin-top: 40px; }
+  .done h3 { font-size: 22px; font-weight: 700; }
+  .done p { margin-top: 6px; color: var(--text-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track, .frame, .card-wrap, .card-inner, .sheet { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <a href="https://www.pickle.plus" target="_blank" rel="noopener">이지혜 Jerry</a>
+    <a class="save" href="jerry.vcf" download="이지혜_피클플러스.vcf">연락처 저장</a>
+  </header>
+  <p class="bio">피클플러스 프로덕트 디자인팀을 이끌고 있어요. 함께할 디자이너를 찾고 있어요.</p>
+
+  <div class="stage">
+  <div class="caption" id="caption" aria-live="polite"></div>
+
+  <main class="carousel" id="carousel" aria-roledescription="carousel">
+    <div class="track" id="track">
+
+      <!-- 1. 명함 -->
+      <div class="slide" data-caption="card">
+        <div class="frame frame--card" id="card-frame" role="button" aria-label="명함 뒤집기">
+          <span class="frame-hint">눌러서 뒤집기</span>
+          <div class="card-wrap">
+            <div class="card-inner" id="card-inner">
+              <div class="face face--front"><div class="face-body">
+                <div class="front">
+                  <div class="front-left">
+                    <div>
+                      <p class="name">이지혜</p>
+                      <p class="role">Product Design Team Lead</p>
+                    </div>
+                    <img class="symbol" src="assets/symbol.svg" width="106.5" height="71" alt="">
+                  </div>
+                  <div class="front-right">
+                    <div class="contact inter">
+                      <p>010-2053-0301</p>
+                      <p>jihye.lee@pickle.plus</p>
+                    </div>
+                    <div>
+                      <p>주식회사 피클플러스</p>
+                      <p>서울시 중구 한강대로 416</p>
+                      <p>서울스퀘어 14층 138호</p>
+                      <p class="inter">www.pickle.plus</p>
+                    </div>
+                  </div>
+                </div>
+              </div></div>
+              <div class="face face--back"><div class="face-body">
+                <div class="back"><img class="logo" src="assets/logo.svg" width="365.91" height="106" alt="pickle+"></div>
+              </div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 채용 -->
+      <div class="slide" data-caption="hiring">
+        <a class="frame frame--hiring" id="job-link" href="#" target="_blank" rel="noopener">
+          <div class="poster">
+            <span class="eyebrow">We're hiring</span>
+            <p class="headline">프로덕트<br>디자이너를<br>찾고 있어요</p>
+            <div class="poster-foot"><span>채용 공고 보기</span><span>↗</span></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 3. 커피챗 -->
+      <div class="slide" data-caption="coffee">
+        <div class="frame frame--coffee" id="coffee-frame" role="button" aria-label="커피챗 연락처 남기기">
+          <div class="poster">
+            <img class="mark" src="assets/symbol.svg" width="106.5" height="71" alt="">
+            <div>
+              <p class="headline">커피챗</p>
+              <p class="subline">당장 이직 생각은 없어도 괜찮아요</p>
+            </div>
+            <div class="poster-foot"><span>연락처 남기기</span><span class="go">→</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  </div>
+
+  <div class="pill-wrap">
+    <nav class="pill" id="pill" aria-label="카드 넘기기">
+      <span class="pill-indicator" id="pill-indicator"></span>
+      <button type="button" data-index="0" class="is-active">명함</button>
+      <button type="button" data-index="1">채용</button>
+      <button type="button" data-index="2">커피챗</button>
+    </nav>
+  </div>
+</div>
+
+<div class="toast" id="toast">복사했어요</div>
+
+<!-- 커피챗 폼 -->
+<section class="sheet" id="sheet" aria-hidden="true" aria-labelledby="sheet-title">
+  <div class="sheet-inner">
+    <div class="sheet-top">
+      <h2 id="sheet-title">커피챗</h2>
+      <button type="button" class="close" id="sheet-close">닫기</button>
+    </div>
+
+    <div id="form-area">
+      <p class="lead">당장 이직 생각은 없어도 커피챗은 하고 싶다면? 연락처를 남겨 주세요.</p>
+
+      <form id="leave-form" novalidate>
+        <label>이름
+          <input type="text" name="name" autocomplete="name" required maxlength="50">
+        </label>
+        <label>이메일 또는 전화번호
+          <input type="text" name="contact" autocomplete="email" required maxlength="100" inputmode="email">
+        </label>
+        <label><span>포트폴리오 / 링크드인 <span class="opt">(선택)</span></span>
+          <input type="url" name="portfolio" autocomplete="url" maxlength="300" placeholder="https://">
+        </label>
+        <fieldset>
+          <legend>이직을 생각하는 시점 <span class="opt">(선택)</span></legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="timing" value="지금"><span>지금</span></label>
+            <label class="chip"><input type="radio" name="timing" value="6개월 안"><span>6개월 안</span></label>
+            <label class="chip"><input type="radio" name="timing" value="아직 모름"><span>아직 모름</span></label>
+          </div>
+        </fieldset>
+
+        <!-- 사람에게는 보이지 않는 입력 필드. 값이 들어오면 자동 입력으로 보고 버림 -->
+        <div class="hp" aria-hidden="true">
+          <label>website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+        </div>
+
+        <div class="consent">
+          <strong>개인정보 수집 · 이용 동의</strong>
+          <ul>
+            <li>수집 항목: 이름, 이메일 또는 전화번호, 포트폴리오 링크(선택), 이직 희망 시점(선택)</li>
+            <li>이용 목적: 프로덕트 디자이너 채용 안내 및 연락</li>
+            <li>보관 기간: 수집일로부터 1년, 또는 삭제 요청 시 즉시 파기</li>
+            <li>동의하지 않을 수 있으며, 동의하지 않으면 연락처를 남길 수 없어요.</li>
+          </ul>
+        </div>
+        <label class="check"><input type="checkbox" name="consent" value="동의" required><span class="check-box" aria-hidden="true"></span><span>동의합니다 (필수)</span></label>
+
+        <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+        <button class="submit" type="submit" id="submit">연락처 남기기</button>
+      </form>
+    </div>
+
+    <div class="done" id="done" hidden>
+      <h3>고마워요!</h3>
+      <p>남겨주신 연락처로 곧 인사드릴게요.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 발행할 때 채우는 값
+  const CONFIG = {
+    // 채용 공고 주소. 프로덕트 디자이너 공고가 열리면 그 공고 주소로 바꾸기
+    jobUrl: "https://pickleplus.ninehire.site/job_posting",
+    // 프로덕트 디자인 리드 인터뷰 주소 (올라가면 넣기, 비어 있으면 눌러도 이동하지 않음)
+    interviewUrl: "",
+    // 구글 시트 Apps Script 웹 앱 주소 (…/exec)
+    sheetEndpoint: "",
+    email: "jihye.lee@pickle.plus"
+  };
+
+  const carousel = document.getElementById("carousel");
+  const track = document.getElementById("track");
+  const slides = [...track.children];
+  const pill = document.getElementById("pill");
+  const pillButtons = [...pill.querySelectorAll("button")];
+  const indicator = document.getElementById("pill-indicator");
+  const caption = document.getElementById("caption");
+  let active = 0;
+
+  document.getElementById("job-link").href = CONFIG.jobUrl;
+
+  // ---------- 아래 설명 한 줄 ----------
+  function renderCaption() {
+    const key = slides[active].dataset.caption;
+    caption.innerHTML = "";
+    if (key === "card") {
+      caption.append(button("메일 복사", copyEmail));
+    } else if (key === "hiring") {
+      const interview = document.createElement("a");
+      interview.className = "caption-btn";
+      interview.textContent = "프로덕트 디자인 리드 인터뷰 읽기";
+      if (CONFIG.interviewUrl) {
+        interview.href = CONFIG.interviewUrl; interview.target = "_blank"; interview.rel = "noopener";
+      } else {
+        interview.href = "#";
+        interview.addEventListener("click", (e) => e.preventDefault());
+      }
+      caption.append(interview);
+    }
+  }
+  function textNode(t) { const s = document.createElement("span"); s.textContent = t; return s; }
+  function button(t, fn) { const b = document.createElement("button"); b.type = "button"; b.className = "caption-btn"; b.textContent = t; b.addEventListener("click", fn); return b; }
+
+  // ---------- 카드 넘기기 ----------
+  function slideWidth() { return slides[0].getBoundingClientRect().width; }
+  function baseOffset() { return (carousel.clientWidth - slideWidth()) / 2 - active * slideWidth(); }
+  function setOffset(px) { track.style.transform = `translateX(${px}px)`; }
+
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle("is-active", i === active));
+    pillButtons.forEach((b, i) => b.classList.toggle("is-active", i === active));
+    setOffset(baseOffset());
+    moveIndicator();
+    renderCaption();
+  }
+  function moveIndicator() {
+    const b = pillButtons[active];
+    indicator.style.left = b.offsetLeft + "px";
+    indicator.style.width = b.offsetWidth + "px";
+  }
+  function goTo(i) {
+    active = Math.max(0, Math.min(slides.length - 1, i));
+    render();
+  }
+
+  pillButtons.forEach((b, i) => b.addEventListener("click", () => goTo(i)));
+  document.addEventListener("keydown", (e) => {
+    if (sheet.classList.contains("is-open")) return;
+    if (e.key === "ArrowRight") goTo(active + 1);
+    if (e.key === "ArrowLeft") goTo(active - 1);
+  });
+
+  // 손가락 / 마우스로 끌기
+  let startX = 0, startY = 0, dx = 0, startT = 0, dragging = false, moved = false;
+  carousel.addEventListener("pointerdown", (e) => {
+    dragging = true; moved = false; dx = 0;
+    startX = e.clientX; startY = e.clientY; startT = performance.now();
+  });
+  carousel.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const x = e.clientX - startX, y = e.clientY - startY;
+    if (!moved && Math.abs(x) < 8) return;
+    if (!moved && Math.abs(y) > Math.abs(x)) { dragging = false; return; }
+    moved = true;
+    dx = x;
+    track.classList.add("is-dragging");
+    // 처음과 끝에서는 덜 끌리게
+    const edge = (active === 0 && dx > 0) || (active === slides.length - 1 && dx < 0);
+    setOffset(baseOffset() + (edge ? dx * 0.3 : dx));
+  });
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    track.classList.remove("is-dragging");
+    if (!moved) return;
+    const v = dx / (performance.now() - startT);
+    const w = slideWidth();
+    if (dx < -w * 0.25 || v < -0.5) goTo(active + 1);
+    else if (dx > w * 0.25 || v > 0.5) goTo(active - 1);
+    else render();
+  }
+  carousel.addEventListener("pointerup", endDrag);
+  carousel.addEventListener("pointercancel", endDrag);
+  carousel.addEventListener("pointerleave", endDrag);
+  // 끈 다음에 손을 떼면 누른 것으로 치지 않음
+  carousel.addEventListener("click", (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+
+  // 옆 카드를 누르면 그 카드로 이동
+  slides.forEach((s, i) => s.addEventListener("click", (e) => {
+    if (i !== active) { e.preventDefault(); e.stopPropagation(); goTo(i); }
+  }, true));
+
+  window.addEventListener("resize", () => { track.classList.add("is-dragging"); render(); track.offsetWidth; track.classList.remove("is-dragging"); });
+
+  // ---------- 명함 뒤집기 ----------
+  const cardFrame = document.getElementById("card-frame");
+  const cardInner = document.getElementById("card-inner");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let flipping = false;
+  cardFrame.addEventListener("click", () => {
+    if (reduce) { cardFrame.classList.toggle("is-flipped"); return; }
+    if (flipping) return;
+    flipping = true;
+    cardInner.classList.add("is-half");
+    cardInner.addEventListener("transitionend", function half() {
+      cardInner.removeEventListener("transitionend", half);
+      cardFrame.classList.toggle("is-flipped");
+      cardInner.classList.remove("is-half");
+      cardInner.classList.add("is-return");
+      cardInner.offsetWidth;
+      cardInner.classList.remove("is-return");
+      cardInner.style.transitionTimingFunction = "ease-out";
+      cardInner.addEventListener("transitionend", function back() {
+        cardInner.removeEventListener("transitionend", back);
+        cardInner.style.transitionTimingFunction = "";
+        flipping = false;
+      });
+    });
+  });
+
+  // ---------- 메일 복사 ----------
+  const toast = document.getElementById("toast");
+  let toastTimer;
+  async function copyEmail() {
+    try { await navigator.clipboard.writeText(CONFIG.email); toast.textContent = "메일 주소를 복사했어요"; }
+    catch (e) { toast.textContent = CONFIG.email; }
+    toast.classList.add("is-visible");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 1600);
+  }
+
+  // ---------- 커피챗 폼 ----------
+  const sheet = document.getElementById("sheet");
+  function openSheet() { sheet.classList.add("is-open"); sheet.setAttribute("aria-hidden", "false"); }
+  function closeSheet() { sheet.classList.remove("is-open"); sheet.setAttribute("aria-hidden", "true"); }
+  document.getElementById("coffee-frame").addEventListener("click", openSheet);
+  document.getElementById("sheet-close").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+
+  // 이직 시점: 이미 고른 것을 다시 누르면 선택 해제
+  document.querySelectorAll(".chip input").forEach((radio) => {
+    let wasChecked = false;
+    radio.closest(".chip").addEventListener("pointerdown", () => { wasChecked = radio.checked; });
+    radio.addEventListener("click", () => { if (wasChecked) radio.checked = false; wasChecked = false; });
+  });
+
+  const form = document.getElementById("leave-form");
+  const msg = document.getElementById("form-msg");
+  const submit = document.getElementById("submit");
+  function showError(text) { msg.textContent = text; msg.classList.add("is-error"); }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = ""; msg.classList.remove("is-error");
+    const data = new FormData(form);
+    const name = (data.get("name") || "").trim();
+    const contact = (data.get("contact") || "").trim();
+    if (!name) return showError("이름을 입력해 주세요.");
+    if (!contact) return showError("이메일 또는 전화번호를 입력해 주세요.");
+    if (!data.get("consent")) return showError("개인정보 수집 · 이용에 동의해 주세요.");
+    if (!CONFIG.sheetEndpoint) return showError("아직 연결 전이에요. 메일로 연락 주세요.");
+
+    submit.disabled = true; submit.textContent = "보내는 중…";
+    try {
+      // Apps Script는 다른 주소에서 온 요청에 응답을 읽을 수 없게 하므로 no-cors로 보내고 결과는 확인하지 않음
+      await fetch(CONFIG.sheetEndpoint, {
+        method: "POST", mode: "no-cors",
+        body: new URLSearchParams({
+          name, contact,
+          portfolio: (data.get("portfolio") || "").trim(),
+          timing: data.get("timing") || "",
+          consent: data.get("consent") || "",
+          website: data.get("website") || ""
+        })
+      });
+      document.getElementById("form-area").hidden = true;
+      document.getElementById("done").hidden = false;
+    } catch (err) {
+      showError("보내지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
+      submit.disabled = false; submit.textContent = "연락처 남기기";
+    }
+  });
+
+  // 처음 위치는 움직이지 않고 바로 놓음
+  track.classList.add("is-dragging");
+  render();
+  track.offsetWidth;
+  track.classList.remove("is-dragging");
+  document.fonts && document.fonts.ready.then(moveIndicator);
+</script>
+</body>
+</html>
