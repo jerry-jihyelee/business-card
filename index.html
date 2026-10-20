@@ -64,14 +64,12 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* ---------- 위: 이름 / 연락처 저장 ---------- */
+  /* ---------- 위: 이름 / 한 줄 소개 ---------- */
   .top {
     display: flex; justify-content: space-between; align-items: baseline;
     padding: var(--page) var(--page) 0;
   }
   .top a { transition: color .16s ease; }
-  .top .save { color: var(--text-2); }
-  .top .save:active { color: var(--black); }
   .bio { padding: 8px var(--page) 0; color: var(--text-2); letter-spacing: -0.15px; }
 
   /* ---------- 가운데: 카드 넘기기 ---------- */
@@ -116,8 +114,8 @@
   }
   .slide.is-active .frame { transform: scale(1); opacity: 1; }
   /* 옆 카드는 가운데 카드 쪽 끝을 기준으로 줄여서 화면 가장자리에 살짝 보이게 */
-  .slide.is-next .frame { transform: translateX(-10%) scale(var(--scale-inactive)); }
-  .slide.is-prev .frame { transform: translateX(10%) scale(var(--scale-inactive)); }
+  .slide.is-next .frame { transform: translateX(calc(-10% + 12px)) scale(var(--scale-inactive)); }   /* 가운데 카드와 12px 간격 */
+  .slide.is-prev .frame { transform: translateX(calc(10% - 12px)) scale(var(--scale-inactive)); }
   .track.is-dragging .frame { transition: none; }
 
   /* 1. 명함 */
@@ -241,13 +239,15 @@
     transition: opacity .8s var(--ease-out), transform .8s var(--ease-out);
   }
   .sheet.is-open { opacity: 1; transform: none; pointer-events: auto; }
-  .sheet-inner { max-width: 480px; margin: 0 auto; padding: calc(var(--page) + env(safe-area-inset-top)) var(--page) calc(40px + env(safe-area-inset-bottom)); }
+  .sheet-inner { max-width: 480px; min-height: 100%; margin: 0 auto; padding: calc(var(--page) + env(safe-area-inset-top)) var(--page) 0; display: flex; flex-direction: column; }
+  #form-area { flex: 1; display: flex; flex-direction: column; }
+  #form-area[hidden] { display: none; }
   .sheet-top { display: flex; justify-content: space-between; align-items: center; }
   .sheet-top .close { color: var(--text-2); }
   .sheet h2 { font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.04em; }
-  .sheet .lead { margin-top: 8px; color: var(--text-2); }
+  .sheet .lead { margin-top: 12px; color: var(--text-2); }
 
-  form { display: grid; gap: 16px; margin-top: 28px; letter-spacing: 0; }
+  form { flex: 1; display: flex; flex-direction: column; gap: 16px; margin-top: 28px; letter-spacing: 0; }
   label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
   .opt { font-weight: 500; color: var(--sub); }
   input[type=text], input[type=url] {
@@ -260,8 +260,8 @@
   legend { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; }
   .chip input { position: absolute; opacity: 0; pointer-events: none; }
-  .chip span { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border: 1px solid #E5E7EB; border-radius: 999px; font-size: 15px; font-weight: 500; cursor: pointer; }   /* PDS line-neutral (gray-200) */
-  .chip input:checked + span { border-color: var(--black); background: var(--surface); }   /* 테두리 검정 + 배경 gray-100 */
+  .chip span { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .chip input:checked + span { border-color: #6A7282; background: var(--surface); }   /* 테두리 PDS gray-500 + 배경 gray-100 */
   .consent { padding: 14px; border-radius: 10px; background: #F9FAFB; font-size: 13px; font-weight: 500; color: var(--sub); line-height: 1.6; }
   .consent strong { display: block; color: var(--black); font-weight: 600; margin-bottom: 4px; }
   .consent ul { list-style: none; }
@@ -275,7 +275,22 @@
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .form-msg { font-size: 14px; font-weight: 600; }
   .form-msg.is-error { color: var(--error); }
+  /* BottomCTA: 페이지용 large 56 / 아래 여백 safe area와 20px 중 큰 값 / 위에 마스크 그라데이션 36px (2026-10-12 BottomCTA 조사) */
+  .bottom-cta {
+    position: sticky; bottom: 0;
+    margin: auto calc(var(--page) * -1) 0;   /* 위 auto: 내용이 짧아도 화면 아래에 붙음 */
+    padding: 0 var(--page) max(env(safe-area-inset-bottom), 20px);
+    background: var(--white);
+    display: grid; gap: 8px;
+  }
+  .bottom-cta::before {
+    content: ""; position: absolute; left: 0; right: 0; top: -36px; height: 36px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), var(--white));
+    pointer-events: none;
+  }
+  .form-msg:empty { display: none; }
   .submit {
+    width: 100%;
     position: relative; isolation: isolate;
     height: 56px; border-radius: 999px;
     background: var(--black); color: var(--white);
@@ -295,7 +310,6 @@
 <div class="app">
   <header class="top">
     <a href="https://www.pickle.plus" target="_blank" rel="noopener">이지혜 Jerry</a>
-    <a class="save" href="jerry.vcf" download="이지혜_피클플러스.vcf">연락처 저장</a>
   </header>
   <p class="bio">피클플러스 프로덕트 디자인팀을 이끌고 있어요. 함께할 디자이너를 찾고 있어요.</p>
 
@@ -428,8 +442,11 @@
         </div>
         <label class="check"><input type="checkbox" name="consent" value="동의" required><span class="check-box" aria-hidden="true"></span><span>동의합니다 (필수)</span></label>
 
-        <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
-        <button class="submit" type="submit" id="submit">연락처 남기기</button>
+        <!-- BottomCTA: 버튼은 아래에 고정, 내용만 스크롤 -->
+        <div class="bottom-cta">
+          <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+          <button class="submit" type="submit" id="submit">연락처 남기기</button>
+        </div>
       </form>
     </div>
 
@@ -468,7 +485,12 @@
     const key = slides[active].dataset.caption;
     caption.innerHTML = "";
     if (key === "card") {
-      caption.append(button("메일 복사", copyEmail));
+      const save = document.createElement("a");
+      save.className = "caption-btn";
+      save.href = "jerry.vcf";
+      save.download = "이지혜_피클플러스.vcf";
+      save.textContent = "연락처 저장";
+      caption.append(button("메일 복사", copyEmail), textNode("·"), save);
     } else if (key === "hiring") {
       const interview = document.createElement("a");
       interview.className = "caption-btn";
