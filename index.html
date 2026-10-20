@@ -57,8 +57,9 @@
     font-family: var(--pretendard);
     font-size: 16px;
     font-weight: 500;
-    letter-spacing: -0.25px;
+    letter-spacing: 0;
     line-height: 1.4;
+    word-break: keep-all;   /* 한국어는 단어 단위로 줄바꿈 */
     -webkit-font-smoothing: antialiased;
   }
   button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; letter-spacing: inherit; }
@@ -77,7 +78,7 @@
     padding: var(--page) var(--page) 0;
   }
   .top a { transition: color .16s ease; }
-  .bio { padding: 8px var(--page) 0; color: var(--text-2); letter-spacing: -0.15px; }
+  .bio { padding: 8px var(--page) 0; color: var(--text-2); }
 
   /* ---------- 가운데: 카드 넘기기 ---------- */
   /* 카드 + 설명 한 줄을 한 묶음으로 세로 가운데에 놓음 */
@@ -170,7 +171,7 @@
 
   .frame-hint {
     position: absolute; left: 0; right: 0; bottom: 7cqw;
-    text-align: center; font-size: 4cqw; color: var(--text-2); letter-spacing: -0.02em;
+    text-align: center; font-size: 4cqw; color: var(--text-2);
   }
 
   /* 2. 채용 / 3. 커피챗 */
@@ -182,9 +183,9 @@
     padding: 7cqw;
   }
   .eyebrow { font-family: var(--inter); font-size: 4cqw; letter-spacing: 0; opacity: .7; }
-  .headline { font-size: 11cqw; font-weight: 700; line-height: 1.15; letter-spacing: -0.04em; }
-  .subline { margin-top: 2.5cqw; font-size: 4.4cqw; font-weight: 500; letter-spacing: -0.02em; opacity: .7; }
-  .poster-foot { display: flex; justify-content: space-between; align-items: center; font-size: 4.4cqw; font-weight: 600; letter-spacing: -0.02em; }
+  .headline { font-size: 11cqw; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
+  .subline { margin-top: 2.5cqw; font-size: 4.4cqw; font-weight: 500; opacity: .7; }
+  .poster-foot { display: flex; justify-content: space-between; align-items: center; font-size: 4.4cqw; font-weight: 600; }
   .frame--coffee .poster-foot .go { color: var(--pop-green); }
   .poster .mark { width: 12cqw; height: auto; }
 
@@ -255,7 +256,7 @@
   #form-area[hidden] { display: none; }
   .sheet-top { display: flex; justify-content: space-between; align-items: center; }
   .sheet-top .close { color: var(--text-2); }
-  .sheet h2 { font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.04em; }
+  .sheet h2 { font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; }
   .sheet .lead { margin-top: 16px; color: var(--text-2); }
 
   form { flex: 1; display: flex; flex-direction: column; gap: 16px; margin-top: 28px; letter-spacing: 0; }
