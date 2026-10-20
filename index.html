@@ -75,12 +75,12 @@
   .bio { padding: 8px var(--page) 0; color: var(--text-2); letter-spacing: -0.15px; }
 
   /* ---------- 가운데: 카드 넘기기 ---------- */
-  /* 설명 한 줄 + 카드를 한 묶음으로 세로 가운데에 놓음 */
+  /* 카드 + 설명 한 줄을 한 묶음으로 세로 가운데에 놓음 */
   .stage { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
   .carousel {
     position: relative;
     flex: 0 1 auto;
-    height: min(97.5vw, 525px);   /* 카드 폭 78% × 4:5 비율, 최대 420 × 525 */
+    height: min(calc((100vw - var(--page) * 2) * 1.25), 525px);   /* 카드 폭 × 4:5 비율, 최대 420 × 525 */
     min-height: 0;
     overflow: hidden;
     touch-action: pan-y;
@@ -95,7 +95,7 @@
   .track.is-dragging { transition: none; }
   .slide {
     flex: none;
-    width: 78%;
+    width: calc(100% - var(--page) * 2);   /* 좌우 여백 24px */
     max-width: 420px;
     height: 100%;
     display: flex; align-items: center; justify-content: center;
@@ -115,6 +115,9 @@
     cursor: pointer;
   }
   .slide.is-active .frame { transform: scale(1); opacity: 1; }
+  /* 옆 카드는 가운데 카드 쪽 끝을 기준으로 줄여서 화면 가장자리에 살짝 보이게 */
+  .slide.is-next .frame { transform: translateX(-10%) scale(var(--scale-inactive)); }
+  .slide.is-prev .frame { transform: translateX(10%) scale(var(--scale-inactive)); }
   .track.is-dragging .frame { transition: none; }
 
   /* 1. 명함 */
@@ -178,10 +181,10 @@
   .frame--coffee .poster-foot .go { color: var(--pop-green); }
   .poster .mark { width: 12cqw; height: auto; }
 
-  /* ---------- 카드 위 설명 한 줄 / 아래 탭 (pill nav) ---------- */
+  /* ---------- 카드 밑 설명 한 줄 / 아래 탭 (pill nav) ---------- */
   .caption {
     min-height: 24px;
-    padding: 0 var(--page) 12px;
+    padding: 12px var(--page) 0;
     display: flex; justify-content: center; align-items: center; gap: 12px;
     text-align: center;
     color: var(--text-2);
@@ -189,7 +192,7 @@
   .caption > * { transition: opacity .25s ease; }
   .caption-btn { color: var(--black); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(0,0,0,.25); }
 
-  .pill-wrap { display: flex; justify-content: center; padding: 12px var(--page) var(--page); }
+  .pill-wrap { display: flex; justify-content: center; padding: 12px var(--page) 12px; }
   .pill {
     position: relative;
     display: flex;
@@ -206,7 +209,9 @@
   }
   .pill button {
     position: relative;
-    padding: 12px 20px;
+    display: flex; align-items: center;
+    height: 40px;                 /* 바깥 여백 4px까지 더해 전체 48px */
+    padding: 0 20px;
     border-radius: 110px;
     font-size: 16px;
     opacity: .5;
@@ -295,8 +300,6 @@
   <p class="bio">피클플러스 프로덕트 디자인팀을 이끌고 있어요. 함께할 디자이너를 찾고 있어요.</p>
 
   <div class="stage">
-  <div class="caption" id="caption" aria-live="polite"></div>
-
   <main class="carousel" id="carousel" aria-roledescription="carousel">
     <div class="track" id="track">
 
@@ -364,6 +367,7 @@
 
     </div>
   </main>
+  <div class="caption" id="caption" aria-live="polite"></div>
   </div>
 
   <div class="pill-wrap">
@@ -487,7 +491,11 @@
   function setOffset(px) { track.style.transform = `translateX(${px}px)`; }
 
   function render() {
-    slides.forEach((s, i) => s.classList.toggle("is-active", i === active));
+    slides.forEach((s, i) => {
+      s.classList.toggle("is-active", i === active);
+      s.classList.toggle("is-next", i > active);
+      s.classList.toggle("is-prev", i < active);
+    });
     pillButtons.forEach((b, i) => b.classList.toggle("is-active", i === active));
     setOffset(baseOffset());
     moveIndicator();
