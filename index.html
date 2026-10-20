@@ -297,7 +297,7 @@
     background: var(--black); color: var(--white);
     font-size: 16px; font-weight: 600;
   }
-  .submit:disabled { opacity: .4; }
+  .submit:disabled { background: #F3F4F6; color: #D1D5DC; cursor: not-allowed; }   /* PDS surface-disabled / content-disabled */
   .done { margin-top: 40px; }
   .done h3 { font-size: 22px; font-weight: 700; }
   .done p { margin-top: 6px; color: var(--text-2); }
@@ -646,6 +646,17 @@
   const submit = document.getElementById("submit");
   function showError(text) { msg.textContent = text; msg.classList.add("is-error"); }
 
+  // 필수 항목(이름 / 연락처 / 동의)이 모두 채워져야 버튼이 눌림
+  function updateSubmit() {
+    if (submit.dataset.sending) return;
+    const f = form.elements;   // form.name은 폼 자체의 name 속성이라 elements로 읽음
+    const ready = f["name"].value.trim() && f["contact"].value.trim() && f["consent"].checked;
+    submit.disabled = !ready;
+  }
+  form.addEventListener("input", updateSubmit);
+  form.addEventListener("change", updateSubmit);
+  updateSubmit();
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = ""; msg.classList.remove("is-error");
@@ -657,7 +668,7 @@
     if (!data.get("consent")) return showError("개인정보 수집 · 이용에 동의해 주세요.");
     if (!CONFIG.sheetEndpoint) return showError("아직 연결 전이에요. 메일로 연락 주세요.");
 
-    submit.disabled = true; submit.textContent = "보내는 중…";
+    submit.disabled = true; submit.dataset.sending = "1"; submit.textContent = "보내는 중…";
     try {
       // Apps Script는 다른 주소에서 온 요청에 응답을 읽을 수 없게 하므로 no-cors로 보내고 결과는 확인하지 않음
       await fetch(CONFIG.sheetEndpoint, {
@@ -674,7 +685,7 @@
       document.getElementById("done").hidden = false;
     } catch (err) {
       showError("보내지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.");
-      submit.disabled = false; submit.textContent = "연락처 남기기";
+      delete submit.dataset.sending; submit.textContent = "연락처 남기기"; updateSubmit();
     }
   });
 
